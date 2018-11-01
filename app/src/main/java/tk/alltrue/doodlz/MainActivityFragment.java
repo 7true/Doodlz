@@ -5,6 +5,9 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.content.pm.PackageManager;
@@ -71,5 +74,67 @@ public class MainActivityFragment extends Fragment {
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
     }
 
+    private final SensorEventListener sensorEventListener =
+            new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (!dialogOnScreen) {
+                        float x = event.values[0];
+                        float y = event.values[1];
+                        float z = event.values[2];
+
+                        lastAcceleration = currentAcceleration;
+
+                        currentAcceleration = x*x + y*y + z*z;
+
+                        acceleration = currentAcceleration *
+                                (currentAcceleration - lastAcceleration);
+
+                        if(acceleration > ACCELERATION_THRESHOLD)
+                            confirmErase();
+                    }
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int i) {
+
+                }
+            };
+
+    private void confirmErase() {
+        EraseImageDialogFragment fragment = new EraseImageDialogFragment();
+        fragment.show(getFragmentManager(), "erase dialog");
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.doodle_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.color:
+                ColorDialogFragment colorDialog = new ColorDialogFragment();
+                colorDialog.show(getFragmentManager(), "color dialog");
+                return true;
+            case R.id.line_width:
+                LineWidthDialogFragment widthDialog =
+                        new LineWidthDialogFragment();
+                widthDialog.show(getFragment(), "line width dialog");
+                return true;
+            case R.id.delete_drawing:
+                confirmErase();
+                return true;
+            case R.id.save:
+                saveImage();
+                return true;
+            case R.id.print:
+                doodleView.printImage();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 }
