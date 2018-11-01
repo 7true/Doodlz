@@ -25,4 +25,9 @@
         android:layout_gravity="fill_horizontal"
         android:max="50"
         />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </GridLayout>
