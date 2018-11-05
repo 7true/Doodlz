@@ -3,6 +3,7 @@ package tk.alltrue.doodlz;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -27,14 +28,14 @@ public class EraseImageDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    private MaintActivityFragment getDoodleFragment() {
+    private MainActivityFragment getDoodleFragment() {
         return (MainActivityFragment) getFragmentManager().findFragmentById(
                 R.id.doodleFragment);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         MainActivityFragment fragment = getDoodleFragment();
         if (fragment != null)
             fragment.setDialogOnScreen(true);

@@ -3,6 +3,7 @@ package tk.alltrue.doodlz;
 import android.Manifest;
 import android.app.AlertDialog;
 
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -124,7 +125,7 @@ public class MainActivityFragment extends Fragment {
             case R.id.line_width:
                 LineWidthDialogFragment widthDialog =
                         new LineWidthDialogFragment();
-                widthDialog.show(getFragment(), "line width dialog");
+                widthDialog.show(getFragmentManager(), "line width dialog");
                 return true;
             case R.id.delete_drawing:
                 confirmErase();
@@ -140,33 +141,38 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void saveImage() {
-        if (getContext().checkSelfPermission(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                PackageManager.PERMISSION_GRANTED) {
-            if (shouldShowRequestPermissionRationale(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                AlertDialog.Builder builder =
-                        new AlertDialog.Builder(getActivity());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getContext().checkSelfPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    AlertDialog.Builder builder =
+                            new AlertDialog.Builder(getActivity());
 
-                builder.setMessage(R.string.permission_explanation);
+                    builder.setMessage(R.string.permission_explanation);
 
-                builder.setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{
-                                                Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        SAVE_IMAGE_PERMISSION_REQUEST_CODE);
+                    builder.setPositiveButton(android.R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestPermissions(new String[]{
+                                                    Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                            SAVE_IMAGE_PERMISSION_REQUEST_CODE);
+                                }
                             }
-                        }
-                );
-                builder.create().show();
+                    );
+                    builder.create().show();
+                } else {
+                    requestPermissions(
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            SAVE_IMAGE_PERMISSION_REQUEST_CODE);
+                }
             } else {
-                requestPermissions(
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        SAVE_IMAGE_PERMISSION_REQUEST_CODE);
+                doodleView.saveImage();
             }
-        } else {
+        }
+        else {
             doodleView.saveImage();
         }
     }
@@ -181,12 +187,14 @@ public class MainActivityFragment extends Fragment {
                 return;
         }
 
-        public DoodleView getDoodleView() {
-            return doodleView;
-        }
 
-        public void setDialogOnScreen(boolean visible) {
-            dialogOnScreen = visible;
-        }
+    }
+
+    public DoodleView getDoodleView() {
+        return doodleView;
+    }
+
+    public void setDialogOnScreen(boolean visible) {
+        dialogOnScreen = visible;
     }
 }
